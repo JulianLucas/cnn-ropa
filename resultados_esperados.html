@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Resultados esperados - Camiseta vs. Pantalón (CNN)</title>
+  <style>
+    :root {
+      --bg: #090e17; --panel: rgba(16, 23, 42, 0.75); --muted: #94a3b8; --text: #f1f5f9;
+      --border: rgba(255,255,255,0.08); --ok: #10b981; --no: #ef4444; --accent: #3b82f6;
+      --accent-light: #60a5fa; --glow: rgba(59, 130, 246, 0.3);
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #090e17 radial-gradient(circle at 50% 0%, #172554, #090e17 60%); color: var(--text); font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; line-height: 1.5; }
+    .page { max-width: 1200px; margin: 0 auto; padding: 32px 20px; display: grid; gap: 24px; }
+    .panel { background: var(--panel); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid var(--border); border-radius: 16px; padding: 24px; box-shadow: 0 10px 40px -10px rgba(0,0,0,0.5); transition: transform 0.2s, box-shadow 0.2s; }
+    .panel:hover { transform: translateY(-2px); box-shadow: 0 20px 40px -10px rgba(0,0,0,0.6); border-color: rgba(255,255,255,0.15); }
+    h1 { font-size: clamp(1.8rem, 2vw + 1.2rem, 2.5rem); background: linear-gradient(to right, #93c5fd, #3b82f6); -webkit-background-clip: text; background-clip: text; color: transparent; margin: 0 0 8px; letter-spacing: -0.5px; line-height: 1.2; }
+    h2 { font-size: 1.25rem; font-weight: 600; color: #e2e8f0; margin: 0 0 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+    h2::before { content: ''; display: block; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px var(--glow); }
+    h3 { font-size: 1.05rem; color: var(--accent-light); margin: 0 0 12px; font-weight: 500; }
+    p { margin: 0 0 16px; }
+    .muted { color: var(--muted); }
+    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+    .chips { display: flex; gap: 8px; flex-wrap: wrap; }
+    .tag { font-size: 0.85rem; padding: 4px 10px; border-radius: 6px; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.2); color: #bfdbfe; font-weight: 500; }
+    .tbl { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 0.95rem; }
+    .tbl th, .tbl td { padding: 10px 12px; border-bottom: 1px solid var(--border); text-align: left; }
+    .tbl th { background: rgba(255,255,255,0.03); color: var(--muted); font-weight: 600; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.5px; position: sticky; top: 0; z-index: 1; }
+    .tbl th:first-child { border-top-left-radius: 8px; }
+    .tbl th:last-child { border-top-right-radius: 8px; }
+    .tbl tbody tr:hover { background: rgba(255,255,255,0.02); }
+    .tbl tbody td:nth-child(2), .tbl tbody td:nth-child(3) { text-align: center; width: 120px; }
+    .tbl tbody td:first-child { font-weight: 600; color: var(--muted); }
+    .tbl td.ok { color: var(--ok); font-weight: 600; }
+    .tbl td.no { color: var(--no); }
+    .tbl td.ok::before { content: '✓ '; }
+    .tbl td.no::before { content: '✗ '; opacity: 0.7; }
+    .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 8px; background: rgba(0,0,0,0.2); }
+    .legend { margin-top: 12px; }
+    .img-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+    .img-card { background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 12px; padding: 12px; transition: all 0.2s; }
+    .img-card:hover { transform: scale(1.02); border-color: var(--accent-light); box-shadow: 0 0 20px var(--glow); }
+    .img-card img { width: 100%; height: auto; border-radius: 8px; aspect-ratio: 1/1; object-fit: contain; background: #000; }
+    .img-card figcaption { margin-top: 10px; font-size: 0.85rem; color: var(--muted); text-align: center; }
+    ul { padding-left: 20px; margin: 0; }
+    li { margin-bottom: 6px; }
+    strong { color: #f8fafc; }
+    
+    .timeline { border-left: 2px solid var(--border); padding-left: 20px; margin-left: 10px; list-style: none; }
+    .timeline li { position: relative; margin-bottom: 20px; }
+    .timeline li::before { content: ''; position: absolute; left: -25px; top: 6px; width: 8px; height: 8px; border-radius: 50%; background: var(--accent-light); box-shadow: 0 0 10px var(--accent-light); }
+    .timeline li strong { color: var(--accent-light); display: block; margin-bottom: 2px; }
+    
+    .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+    .feature-card { background: rgba(255,255,255,0.03); border: 1px solid var(--border); padding: 14px; border-radius: 10px; font-size: 0.9rem; }
+    .feature-card strong { display: block; color: var(--accent-light); margin-bottom: 6px; font-size: 0.95rem; }
+    
+    .alert-box { background: rgba(239, 68, 68, 0.1); border-left: 4px solid var(--no); padding: 16px; border-radius: 0 8px 8px 0; margin-bottom: 16px; font-size: 0.95rem; }
+    .info-box { background: rgba(59, 130, 246, 0.1); border-left: 4px solid var(--accent); padding: 16px; border-radius: 0 8px 8px 0; margin-bottom: 16px; font-size: 0.95rem; }
+    
+    .btns { display: flex; gap: 12px; flex-wrap: wrap; justify-content: flex-end; margin-top: 10px; }
+    .btn { appearance: none; border: 1px solid var(--accent); color: #fff; background: rgba(59, 130, 246, 0.2); padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.95rem; transition: all 0.2s; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+    .btn:hover { background: var(--accent); box-shadow: 0 0 15px var(--glow); transform: translateY(-1px); }
+    .btn:active { transform: translateY(1px); }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="panel">
+      <h1>Resultados esperados: Camiseta vs. Pantalón (CNN)</h1>
+      <p class="muted">Objetivo: Analizar cómo los filtros convolucionales capturan formas geométricas asociadas a prendas de vestir y cómo estas representaciones guían la clasificación entre categorías similares.</p>
+    </section>
+
+    <section class="panel">
+      <h2>Resumen ejecutivo</h2>
+      <ul>
+        <li><strong>Camiseta:</strong> curvas superiores, mangas, estructura en “T” y curvatura del cuello.</li>
+        <li><strong>Pantalón:</strong> líneas verticales largas, separación central, piernas paralelas, estructura estrecha y bordes inferiores horizontales.</li>
+        <li><strong>Rotación 90°:</strong> reduce la precisión; la orientación afecta las activaciones y la confianza.</li>
+        <li><strong>Flujo de capas:</strong> Conv1 → Conv2 → Flatten → Densa/Softmax.</li>
+        <li><strong>Nota:</strong> esta página muestra resultados esperados pre-cargados; no ejecuta la CNN.</li>
+      </ul>
+    </section>
+
+    <section class="panel">
+      <h2>Imágenes de referencia</h2>
+      <div class="img-grid">
+        <figure class="img-card">
+          <img src="Imagesnes Camisa/1.png" alt="Camiseta - referencia 1" />
+          <figcaption>Camiseta (Imagesnes Camisa/1.png)</figcaption>
+        </figure>
+        <figure class="img-card">
+          <img src="pantalon/1.png" alt="Pantalón - referencia 1" />
+          <figcaption>Pantalón (pantalon/1.png)</figcaption>
+        </figure>
+        <figure class="img-card">
+          <img src="pantalon/90_1.png" alt="Pantalón - rotado 90°" />
+          <figcaption>Pantalón rotado 90° (pantalon/90_1.png)</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Tabla comparativa (Sí/No)</h2>
+      <div class="table-wrap">
+      <table class="tbl" id="tabla">
+        <thead>
+          <tr><th>Tipo de filtro</th><th>Camiseta</th><th>Pantalón</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Curvas superiores</td><td class="ok">Sí</td><td class="no">No</td></tr>
+          <tr><td>Mangas</td><td class="ok">Sí</td><td class="no">No</td></tr>
+          <tr><td>Curvatura del cuello</td><td class="ok">Sí</td><td class="no">No</td></tr>
+          <tr><td>Líneas verticales largas</td><td class="no">No</td><td class="ok">Sí</td></tr>
+          <tr><td>Separación central</td><td class="no">No</td><td class="ok">Sí</td></tr>
+          <tr><td>Bordes exteriores</td><td class="ok">Sí</td><td class="ok">Sí</td></tr>
+          <tr><td>Contrastes y contornos</td><td class="ok">Sí</td><td class="ok">Sí</td></tr>
+          <tr><td>Simetría</td><td class="ok">Sí</td><td class="ok">Sí</td></tr>
+          <tr><td>Estructura en “T”</td><td class="ok">Sí</td><td class="no">No</td></tr>
+          <tr><td>Piernas paralelas</td><td class="no">No</td><td class="ok">Sí</td></tr>
+          <tr><td>Estructura estrecha</td><td class="no">No</td><td class="ok">Sí</td></tr>
+          <tr><td>Bordes inferiores horizontales</td><td class="no">No</td><td class="ok">Sí</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <div class="legend chips">
+        <span class="tag">✓ Sí</span>
+        <span class="tag">✗ No</span>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Exclusivos y compartidos</h2>
+      <div class="grid-3">
+        <div>
+          <h3>Exclusivos Camiseta</h3>
+          <div class="chips">
+            <span class="tag">Curvas superiores</span>
+            <span class="tag">Mangas</span>
+            <span class="tag">Estructura en “T”</span>
+            <span class="tag">Curvatura del cuello</span>
+          </div>
+        </div>
+        <div>
+          <h3>Exclusivos Pantalón</h3>
+          <div class="chips">
+            <span class="tag">Líneas verticales largas</span>
+            <span class="tag">Separación central</span>
+            <span class="tag">Piernas paralelas</span>
+            <span class="tag">Estructura estrecha</span>
+            <span class="tag">Bordes inferiores horizontales</span>
+          </div>
+        </div>
+        <div>
+          <h3>Compartidos</h3>
+          <div class="chips">
+            <span class="tag">Bordes exteriores</span>
+            <span class="tag">Contrastes y contornos</span>
+            <span class="tag">Simetría</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Puntos clave</h2>
+      <div class="grid-2">
+        <div>
+          <h3>Camiseta</h3>
+          <ul>
+            <li>Bordes horizontales y verticales, curvas suaves y contrastes.</li>
+            <li>Curvatura del cuello.</li>
+            <li>Bordes diagonales de las mangas y simetría de mangas.</li>
+            <li>Contorno ancho del torso y bordes superiores curvos (estructura “T”).</li>
+            <li>ReLU resalta mangas, laterales y cuello.</li>
+            <li>Ausencia de separación central: masa principal continua del torso.</li>
+            <li>Texturas internas poco destacadas; predominan respuestas en el contorno.</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Pantalón</h3>
+          <ul>
+            <li>Líneas verticales y bordes rectos.</li>
+            <li>Separación entre piernas (división/separación central).</li>
+            <li>Simetría longitudinal y contorno alargado.</li>
+            <li>Bordes rectos inferiores; forma completa reconstruida por combinación de bordes.</li>
+            <li>Costados y área interna entre piernas resaltadas por la convolución.</li>
+            <li>Bordes inferiores horizontales definidos en cada pierna.</li>
+            <li>Mayor respuesta en costuras laterales y ejes verticales prolongados.</li>
+            <li>Curvas superiores casi ausentes; predominan líneas y ángulos rectos.</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <h3>Pantalón 90°</h3>
+        <ul>
+          <li>Al rotar 90°, líneas verticales pasan a horizontales.</li>
+          <li>Activaciones menos precisas y pérdida parcial de señales clave.</li>
+          <li>Disminuye la confianza de la red; la orientación afecta el rendimiento.</li>
+          <li>La separación central pierde prominencia; los dobladillos pasan a los laterales.</li>
+          <li>Puede favorecer activaciones parecidas a “camiseta” por silueta más apaisada.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Proceso de capas (resumen)</h2>
+      <ul class="timeline">
+        <li><strong>Primera capa convolucional (Extracción Local):</strong> detecta bordes, curvas y contrastes; comienza a delinear siluetas (mangas y curvas superiores en camiseta; líneas verticales y separación central en pantalón).</li>
+        <li><strong>Segunda capa convolucional (Composición Espacial):</strong> combina bordes/rasgos simples para formar patrones más complejos (estructura en “T” de la camiseta; contorno alargado y piernas paralelas del pantalón).</li>
+        <li><strong>Flatten (Transición Dimensional):</strong> convierte los mapas de activación 2D en un vector 1D unidimensional para conectar con las capas densas. Pierde la estructura espacial pura pero conserva la existencia de patrones.</li>
+        <li><strong>Capa densa + Softmax (Clasificación Global):</strong> pondera las características extraídas y produce probabilidades finales de clase (mayor para la prenda correspondiente).</li>
+      </ul>
+    </section>
+
+    <section class="panel">
+      <h2>Metodología y supuestos</h2>
+      <ul>
+        <li>Imágenes simples en fondo blanco y vista frontal para aislar la silueta.</li>
+        <li>Preprocesamiento típico: escalado/normalización y posible conversión a escala de grises.</li>
+        <li>Arquitectura conceptual: dos capas convolucionales con ReLU, <em>Flatten</em> y capas densas con <em>Softmax</em>.</li>
+        <li>Sin aumentos de datos (rotaciones, recortes) en esta referencia; por eso la orientación impacta.</li>
+      </ul>
+    </section>
+
+    <section class="panel">
+      <h2>Evidencia por característica (qué mira la red)</h2>
+      <div class="feature-grid">
+        <div class="feature-card"><strong>Curvatura del cuello</strong> arco superior central en camiseta; ausente en pantalón.</div>
+        <div class="feature-card"><strong>Mangas</strong> diagonales laterales y extensiones simétricas de hombros; no presentes en pantalón.</div>
+        <div class="feature-card"><strong>Curvas superiores</strong> hombros/cuello de camiseta; el pantalón presenta bordes superiores más rectos.</div>
+        <div class="feature-card"><strong>Líneas verticales largas</strong> ejes de las piernas y costuras del pantalón; poco presentes en camiseta.</div>
+        <div class="feature-card"><strong>Separación central</strong> franja de baja activación entre piernas; inexistente en camiseta.</div>
+        <div class="feature-card"><strong>Piernas paralelas</strong> dos bandas verticales relativamente equiespaciadas en pantalón.</div>
+        <div class="feature-card"><strong>Estructura estrecha</strong> contorno alargado y menos ancho que la camiseta.</div>
+        <div class="feature-card"><strong>Bordes inferiores horizontales</strong> terminaciones rectas de cada pierna.</div>
+        <div class="feature-card"><strong>Estructura en “T”</strong> combinación de torso + mangas en camiseta, visible desde conv2.</div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Limitaciones y confusiones frecuentes</h2>
+      <div class="alert-box">
+        <strong>¡Atención al sesgo de posición!</strong> La red asume que la prenda está recta. Las rotaciones intermedias (45°) o invertidas (180°) degradan drásticamente las activaciones si el modelo no entrenó con <em>data augmentation</em>.
+      </div>
+      <ul>
+        <li>Camisetas sin mangas o muy ajustadas pueden perder la distintiva forma en “T”.</li>
+        <li>Pantalones cortos/bermudas reducen las líneas de piernas paralelas y desplazan los bordes inferiores.</li>
+        <li>Vestidos, monos u otras prendas pueden mezclar señales de ambas categorías confundiendo al clasificador.</li>
+        <li>Fondos no uniformes, arrugas profundas u oclusiones ensucian la detección de la separación central y los contornos puros.</li>
+      </ul>
+    </section>
+
+    <section class="panel">
+      <h2>Recomendaciones de mejora</h2>
+      <div class="info-box">
+        Aplicar estas técnicas en la fase de entrenamiento mejora la generalización y robustez del modelo en el mundo real.
+      </div>
+      <ul>
+        <li><strong>Augmentations:</strong> entrenar aplicando rotaciones al azar, volteos horizontales (flips), recortes (crops) y variaciones de iluminación/fondo.</li>
+        <li><strong>Arquitectura Robusta:</strong> usar <em>Global Average Pooling (GAP)</em> para reducir la sensibilidad espacial estricta, o incorporar invariancia a rotación.</li>
+        <li><strong>Regularización:</strong> aplicar <em>Batch Normalization</em> para estabilizar capas intermedias y <em>Dropout</em> en capas densas para evitar sobreajuste.</li>
+        <li><strong>Explicabilidad Visual:</strong> integrar herramientas como Grad-CAM para mapear un mapa de calor sobre la imagen original y verificar qué píxeles originaron la predicción.</li>
+      </ul>
+    </section>
+
+    <section class="panel">
+      <h2>Glosario rápido</h2>
+      <ul>
+        <li><strong>Filtro/Kernel:</strong> ventana de convolución que extrae un patrón (p. ej., borde).</li>
+        <li><strong>Mapa de activación:</strong> respuesta espacial de un filtro sobre la imagen.</li>
+        <li><strong>ReLU:</strong> función max(0, x) que mantiene activaciones positivas.</li>
+        <li><strong>Flatten:</strong> conversión de mapas 2D a vector 1D para capas densas.</li>
+        <li><strong>Softmax:</strong> normaliza puntuaciones en probabilidades por clase.</li>
+        <li><strong>Separación central:</strong> espacio entre piernas que distingue al pantalón.</li>
+      </ul>
+    </section>
+
+    <section class="panel">
+      <div class="btns">
+        <button class="btn" id="copy">Copiar resumen</button>
+        <button class="btn" id="dlTxt">Descargar .txt</button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (function(){
+      const resumen = [
+        'Resultados esperados: Camiseta vs. Pantalón (CNN)',
+        '',
+        'Objetivo:',
+        'Analizar cómo los filtros convolucionales capturan formas geométricas asociadas a prendas de vestir y cómo estas representaciones guían la clasificación entre categorías similares.',
+        '',
+        'Imágenes de referencia:',
+        '- Camiseta: Imagesnes Camisa/1.png',
+        '- Pantalón: pantalon/1.png',
+        '- Pantalón rotado 90°: pantalon/90_1.png',
+        '',
+        'Tabla comparativa (Sí/No):',
+        'Curvas superiores: Camiseta=Sí, Pantalón=No',
+        'Mangas: Camiseta=Sí, Pantalón=No',
+        'Curvatura del cuello: Camiseta=Sí, Pantalón=No',
+        'Líneas verticales largas: Camiseta=No, Pantalón=Sí',
+        'Separación central: Camiseta=No, Pantalón=Sí',
+        'Bordes exteriores: Camiseta=Sí, Pantalón=Sí',
+        'Contrastes y contornos: Camiseta=Sí, Pantalón=Sí',
+        'Simetría: Camiseta=Sí, Pantalón=Sí',
+        'Estructura en “T”: Camiseta=Sí, Pantalón=No',
+        'Piernas paralelas: Camiseta=No, Pantalón=Sí',
+        'Estructura estrecha: Camiseta=No, Pantalón=Sí',
+        'Bordes inferiores horizontales: Camiseta=No, Pantalón=Sí',
+        '',
+        'Exclusivos Camiseta: Curvas superiores; Mangas; Estructura en “T”; Curvatura del cuello',
+        'Exclusivos Pantalón: Líneas verticales largas; Separación central; Piernas paralelas; Estructura estrecha; Bordes inferiores horizontales',
+        'Compartidos: Bordes exteriores; Contrastes y contornos; Simetría',
+        '',
+        'Puntos clave - Camiseta:',
+        '• Bordes horizontales y verticales, curvas suaves y contrastes.',
+        '• Curvatura del cuello.',
+        '• Bordes diagonales de las mangas y simetría de mangas.',
+        '• Contorno ancho del torso y bordes superiores curvos (estructura “T”).',
+        '• ReLU resalta mangas, laterales y cuello.',
+        '• Ausencia de separación central: masa principal continua del torso.',
+        '• Texturas internas poco destacadas; predominan respuestas en el contorno.',
+        '',
+        'Puntos clave - Pantalón:',
+        '• Líneas verticales y bordes rectos.',
+        '• Separación entre piernas (división/separación central).',
+        '• Simetría longitudinal y contorno alargado.',
+        '• Bordes rectos inferiores; forma completa reconstruida por combinación de bordes.',
+        '• Costados y área interna entre piernas resaltadas por la convolución.',
+        '• Bordes inferiores horizontales definidos en cada pierna.',
+        '• Mayor respuesta en costuras laterales y ejes verticales prolongados.',
+        '• Curvas superiores casi ausentes; predominan líneas y ángulos rectos.',
+        '',
+        'Pantalón 90°:',
+        '• Líneas verticales pasan a horizontales.',
+        '• Activaciones menos precisas y pérdida parcial de señales clave.',
+        '• Disminuye la confianza de la red; la orientación afecta el rendimiento.',
+        '• La separación central pierde prominencia; los dobladillos pasan a los laterales.',
+        '• Puede favorecer activaciones parecidas a “camiseta” por silueta más apaisada.',
+        '',
+        'Proceso de capas (resumen):',
+        '• Primera conv (Extracción Local): bordes, curvas, contrastes; siluetas iniciales.',
+        '• Segunda conv (Composición Espacial): combina rasgos simples (estructura "T", piernas paralelas).',
+        '• Flatten (Transición Dimensional): de mapas 2D a vector 1D.',
+        '• Densa + Softmax (Clasificación Global): pondera características y da probabilidades finales.',
+        '',
+        'Resumen ejecutivo:',
+        '• Camiseta: curvas superiores, mangas, estructura en “T” y curvatura del cuello.',
+        '• Pantalón: líneas verticales largas, separación central, piernas paralelas, estructura estrecha y bordes inferiores horizontales.',
+        '• Rotación 90°: reduce precisión; orientación impacta activaciones y confianza.',
+        '• Flujo: Conv1 → Conv2 → Flatten → Densa/Softmax.',
+        '• Nota: resultados esperados pre-cargados; esta página no ejecuta la CNN.',
+        '',
+        'Metodología y supuestos:',
+        '• Imágenes simples en fondo blanco y vista frontal.',
+        '• Preprocesamiento típico: escalado/normalización; posible escala de grises.',
+        '• Arquitectura: 2×Conv+ReLU → Flatten → Densas+Softmax.',
+        '• Sin augmentations en esta referencia (rotación penaliza).',
+        '',
+        'Evidencia por característica:',
+        '• Curvatura del cuello: arco superior central en camiseta; ausente en pantalón.',
+        '• Mangas: diagonales laterales; extensiones simétricas de hombros.',
+        '• Curvas superiores: hombros/cuello marcados en camiseta.',
+        '• Líneas verticales largas: ejes/costuras de las piernas en pantalón.',
+        '• Separación central: franja entre piernas; clave del pantalón.',
+        '• Piernas paralelas: dos bandas verticales equiespaciadas.',
+        '• Estructura estrecha: contorno alargado y menos ancho.',
+        '• Bordes inferiores horizontales: terminaciones rectas de cada pierna.',
+        '• Estructura en “T”: suma de torso + mangas (camiseta).',
+        '',
+        'Limitaciones y confusiones frecuentes (¡Atención al sesgo de posición!):',
+        '• Camisetas sin mangas/ajustadas; pantalones cortos; vestidos/monos.',
+        '• Rotaciones 45°/180°; recortes/escala; fondos no uniformes; pliegues/oclusiones.',
+        '',
+        'Recomendaciones de mejora:',
+        '• Augmentations: rotaciones aleatorias, flips, recortes y fondos/iluminación variables.',
+        '• Arquitectura: Global Average Pooling (GAP), invariancia a rotación.',
+        '• Regularización: Batch Normalization y Dropout.',
+        '• Explicabilidad: Grad-CAM/saliency para validar regiones que deciden.',
+        '',
+        'Glosario rápido:',
+        '• Filtro/Kernel: ventana de convolución que detecta un patrón.',
+        '• Mapa de activación: respuesta espacial de un filtro.',
+        '• ReLU: max(0, x) para mantener activaciones positivas.',
+        '• Flatten: mapas 2D → vector 1D.',
+        '• Softmax: probabilidades por clase.',
+        '• Separación central: espacio entre piernas (pantalón).'
+      ].join('\n');
+
+      const copy = document.getElementById('copy');
+      const dlTxt = document.getElementById('dlTxt');
+      if (copy) copy.addEventListener('click', async () => {
+        try { await navigator.clipboard.writeText(resumen); alert('Resumen copiado.'); }
+        catch { alert('No se pudo copiar automáticamente. Usa Descargar .txt'); }
+      });
+      if (dlTxt) dlTxt.addEventListener('click', () => {
+        const blob = new Blob([resumen], { type: 'text/plain;charset=utf-8' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'resultados_esperados_cnn_ropa.txt';
+        document.body.appendChild(a); a.click(); a.remove();
+      });
+    })();
+  </script>
+</body>
+</html>
