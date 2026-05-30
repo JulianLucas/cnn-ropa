@@ -1,0 +1,12 @@
+﻿# Office docs
+*.docx
+*.doc
+~$*
+
+# Text notes
+*.txt
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+*.log
